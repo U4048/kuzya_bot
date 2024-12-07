@@ -1,0 +1,1 @@
+/home/roma/ros2_ws/build/kuzya_bot_description/ament_cmake_core/kuzya_bot_descriptionConfig.cmake

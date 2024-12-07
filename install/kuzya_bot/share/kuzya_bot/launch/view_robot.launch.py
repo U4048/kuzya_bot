@@ -1,0 +1,1 @@
+/home/roma/ros2_ws/src/kuzya_bot/description/launch/view_robot.launch.py

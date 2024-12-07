@@ -1,0 +1,75 @@
+[0.008s] Invoking command in '/home/roma/ros2_ws/build/kuzya_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/roma/ros2_ws/src/kuzya_bot -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/roma/ros2_ws/install/kuzya_bot
+[0.052s] -- The CXX compiler identification is GNU 11.4.0
+[0.057s] -- Detecting CXX compiler ABI info
+[0.111s] -- Detecting CXX compiler ABI info - done
+[0.117s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.118s] -- Detecting CXX compile features
+[0.118s] -- Detecting CXX compile features - done
+[0.122s] -- Found ament_cmake: 1.3.10 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.215s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.252s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.278s] -- Found hardware_interface: 2.43.1 (/opt/ros/humble/share/hardware_interface/cmake)
+[0.309s] -- Found rosidl_generator_c: 3.1.5 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.312s] -- Found rosidl_adapter: 3.1.5 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.317s] -- Found rosidl_generator_cpp: 3.1.5 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.325s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.334s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.462s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.464s] -- Found rmw_fastrtps_cpp: 6.2.7 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.479s] -- Found TinyXML2 via Config file: TinyXML2_DIR-NOTFOUND
+[0.521s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.523s] -- Found TinyXML2 via Config file: TinyXML2_DIR-NOTFOUND
+[0.532s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.534s] -- Found TinyXML2 via Config file: TinyXML2_DIR-NOTFOUND
+[0.540s] -- Found TinyXML2 via Config file: TinyXML2_DIR-NOTFOUND
+[0.546s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.551s] -- Looking for C++ include pthread.h
+[0.611s] -- Looking for C++ include pthread.h - found
+[0.611s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.670s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.671s] -- Found Threads: TRUE  
+[0.715s] -- Found ament_cmake_pytest: 1.3.10 (/opt/ros/humble/share/ament_cmake_pytest/cmake)
+[1.291s] -- Configuring done
+[1.326s] -- Generating done
+[1.331s] -- Build files have been written to: /home/roma/ros2_ws/build/kuzya_bot
+[1.338s] Invoked command in '/home/roma/ros2_ws/build/kuzya_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/roma/ros2_ws/src/kuzya_bot -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/roma/ros2_ws/install/kuzya_bot
+[1.339s] Invoking command in '/home/roma/ros2_ws/build/kuzya_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/roma/ros2_ws/build/kuzya_bot -- -j32 -l32
+[1.374s] [ 50%] [32mBuilding CXX object CMakeFiles/kuzya_bot.dir/hardware/diffbot_system.cpp.o[0m
+[3.476s] [100%] [32m[1mLinking CXX shared library libkuzya_bot.so[0m
+[3.582s] [100%] Built target kuzya_bot
+[3.589s] Invoked command in '/home/roma/ros2_ws/build/kuzya_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/roma/ros2_ws/build/kuzya_bot -- -j32 -l32
+[3.591s] Invoking command in '/home/roma/ros2_ws/build/kuzya_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/roma/ros2_ws/build/kuzya_bot
+[3.595s] -- Install configuration: ""
+[3.595s] -- Execute custom install script
+[3.596s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot//kuzya_bot.xml
+[3.603s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/include/kuzya_bot/kuzya_bot/diffbot_system.hpp
+[3.608s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/launch/view_robot.launch.py
+[3.614s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/ros2_control/diffbot.ros2_control.xacro
+[3.621s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/urdf/diffbot.urdf.xacro
+[3.627s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/launch/diffbot.launch.py
+[3.632s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/config/diffbot_controllers.yaml
+[3.638s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/library_path.sh
+[3.644s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/library_path.dsv
+[3.649s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/ament_index/resource_index/package_run_dependencies/kuzya_bot
+[3.655s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/ament_index/resource_index/parent_prefix_path/kuzya_bot
+[3.661s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/ament_prefix_path.sh
+[3.666s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/ament_prefix_path.dsv
+[3.672s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/path.sh
+[3.677s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/environment/path.dsv
+[3.683s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/local_setup.bash
+[3.689s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/local_setup.sh
+[3.695s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/local_setup.zsh
+[3.701s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/local_setup.dsv
+[3.707s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/package.dsv
+[3.713s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/ament_index/resource_index/packages/kuzya_bot
+[3.718s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/ament_index/resource_index/hardware_interface__pluginlib__plugin/kuzya_bot
+[3.724s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/ament_cmake_export_targets-extras.cmake
+[3.731s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/ament_cmake_export_dependencies-extras.cmake
+[3.736s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/kuzya_botConfig.cmake
+[3.742s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/kuzya_botConfig-version.cmake
+[3.748s] -- Symlinking: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/package.xml
+[3.753s] -- Installing: /home/roma/ros2_ws/install/kuzya_bot/lib/libkuzya_bot.so
+[3.755s] -- Set runtime path of "/home/roma/ros2_ws/install/kuzya_bot/lib/libkuzya_bot.so" to ""
+[3.755s] -- Installing: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/export_kuzya_botExport.cmake
+[3.755s] -- Installing: /home/roma/ros2_ws/install/kuzya_bot/share/kuzya_bot/cmake/export_kuzya_botExport-noconfig.cmake
+[3.757s] Invoked command in '/home/roma/ros2_ws/build/kuzya_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/roma/ros2_ws/build/kuzya_bot

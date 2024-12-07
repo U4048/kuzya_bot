@@ -1,0 +1,4 @@
+Invoking command in '/home/roma/ros2_ws/build/kuzya_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/roma/ros2_ws/build/kuzya_bot -- -j32 -l32
+Invoked command in '/home/roma/ros2_ws/build/kuzya_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/roma/ros2_ws/build/kuzya_bot -- -j32 -l32
+Invoking command in '/home/roma/ros2_ws/build/kuzya_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/roma/ros2_ws/build/kuzya_bot
+Invoked command in '/home/roma/ros2_ws/build/kuzya_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/roma/ros2_ws/build/kuzya_bot

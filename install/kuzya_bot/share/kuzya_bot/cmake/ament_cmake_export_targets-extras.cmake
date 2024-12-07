@@ -1,0 +1,1 @@
+/home/roma/ros2_ws/build/kuzya_bot/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake
