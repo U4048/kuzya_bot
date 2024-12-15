@@ -38,11 +38,9 @@ from ament_index_python.packages import get_package_share_directory
 
 def test_urdf_xacro():
     # General Arguments
-    description_package = "kuzya_bot"
-    description_file = "diffbot.urdf.xacro"
 
     description_file_path = os.path.join(
-        get_package_share_directory(description_package), "urdf", description_file
+        get_package_share_directory("kuzya_bot"), "urdf", "diffbot.urdf.xacro"
     )
 
     (_, tmp_urdf_output_file) = tempfile.mkstemp(suffix=".urdf")

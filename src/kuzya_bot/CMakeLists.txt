@@ -65,6 +65,8 @@ ament_target_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
+target_link_libraries(kuzya_bot PUBLIC serial)
+
 # Export hardware plugins
 pluginlib_export_plugin_description_file(hardware_interface kuzya_bot.xml)
 
@@ -75,6 +77,10 @@ install(
 )
 install(
   DIRECTORY description/launch description/ros2_control description/urdf
+  DESTINATION share/kuzya_bot
+)
+install(
+  DIRECTORY description/launch description/ros2_control description/urdf description/rviz
   DESTINATION share/kuzya_bot
 )
 install(
