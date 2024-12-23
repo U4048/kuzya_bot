@@ -4,6 +4,7 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch.conditions import IfCondition
 
 
 from launch import LaunchDescription
@@ -16,6 +17,46 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    # Declare arguments
+    declared_arguments = []
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "main_package",
+            default_value="kuzya_bot",
+            description="Description package with robot URDF/xacro files. Usually the argument \
+        is not set, it enables use of a custom description.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "description_file",
+            default_value="diffbot.urdf.xacro",
+            description="URDF/XACRO description file with the robot.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+           "gui",
+           default_value="false",
+           description="Start Rviz2 and Joint State Publisher gui automatically \
+        with this launch file.",
+           )
+      )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "prefix",
+            default_value='""',
+            description="Prefix of the joint names, useful for \
+        multi-robot setup. If changed than also joint names in the controllers' configuration \
+        have to be updated.",
+        )
+    )
+
+    description_package = LaunchConfiguration("main_package")
+    description_file = LaunchConfiguration("description_file")
+    gui = LaunchConfiguration("gui")
+    prefix = LaunchConfiguration("prefix")
 
     # Get URDF via xacro    
     robot_description_content = Command(
@@ -52,8 +93,9 @@ def generate_launch_description():
         output="both",
         parameters=[robot_description],
         remappings=[
-            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
+            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),            
         ],
+        #condition=IfCondition(gui),
     )
     
     rviz_node = Node(
@@ -62,6 +104,7 @@ def generate_launch_description():
         name="rviz2",
         output="log",
         arguments=["-d", rviz_config_file],
+        #condition=IfCondition(gui),
     )
 
     joint_state_broadcaster_spawner = Node(
