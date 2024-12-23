@@ -14,22 +14,19 @@
 
 #include "kuzya_bot/diffbot_system.hpp"
 
+
 #include <chrono>
 #include <cmath>
-#include <cstddef>
-#include <iomanip>
 #include <limits>
 #include <memory>
-#include <sstream>
 #include <vector>
 
-#include "hardware_interface/lexical_casts.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace kuzya_bot
 {
-hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
+hardware_interface::CallbackReturn DiffDriveKuzyaHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
   if (
@@ -38,19 +35,31 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
-  logger_ = std::make_shared<rclcpp::Logger>(
-    rclcpp::get_logger("controller_manager.resource_manager.hardware_component.system.DiffBot"));
-  clock_ = std::make_shared<rclcpp::Clock>(rclcpp::Clock());
 
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_start_sec_ =
-    hardware_interface::stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
-  hw_stop_sec_ =
-    hardware_interface::stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+
+  cfg_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
+  cfg_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
+  cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]);
+  cfg_.device = info_.hardware_parameters["device"];
+  cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
+  cfg_.timeout_ms = std::stoi(info_.hardware_parameters["timeout_ms"]);
+  cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
+  if (info_.hardware_parameters.count("pid_p") > 0)
+  {
+    cfg_.pid_p = std::stoi(info_.hardware_parameters["pid_p"]);
+    cfg_.pid_d = std::stoi(info_.hardware_parameters["pid_d"]);
+    cfg_.pid_i = std::stoi(info_.hardware_parameters["pid_i"]);
+    cfg_.pid_o = std::stoi(info_.hardware_parameters["pid_o"]);
+  }
+  else
+  {
+    RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "PID values not supplied, using defaults.");
+  }
+  
+
+  wheel_l_.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
+  wheel_r_.setup(cfg_.right_wheel_name, cfg_.enc_counts_per_rev);
+
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
@@ -58,24 +67,26 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
     if (joint.command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
-        get_logger(), "Joint '%s' has %zu command interfaces found. 1 expected.",
-        joint.name.c_str(), joint.command_interfaces.size());
+        rclcpp::get_logger("DiffDriveKuzyaHardware"),
+        "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
+        joint.command_interfaces.size());
       return hardware_interface::CallbackReturn::ERROR;
     }
 
     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(
-        get_logger(), "Joint '%s' have %s command interfaces found. '%s' expected.",
-        joint.name.c_str(), joint.command_interfaces[0].name.c_str(),
-        hardware_interface::HW_IF_VELOCITY);
+        rclcpp::get_logger("DiffDriveKuzyaHardware"),
+        "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
+        joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces.size() != 2)
     {
       RCLCPP_FATAL(
-        get_logger(), "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
+        rclcpp::get_logger("DiffDriveKuzyaHardware"),
+        "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
         joint.state_interfaces.size());
       return hardware_interface::CallbackReturn::ERROR;
     }
@@ -83,18 +94,18 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
     if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
     {
       RCLCPP_FATAL(
-        get_logger(), "Joint '%s' have '%s' as first state interface. '%s' expected.",
-        joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
-        hardware_interface::HW_IF_POSITION);
+        rclcpp::get_logger("DiffDriveKuzyaHardware"),
+        "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
+        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
       return hardware_interface::CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(
-        get_logger(), "Joint '%s' have '%s' as second state interface. '%s' expected.",
-        joint.name.c_str(), joint.state_interfaces[1].name.c_str(),
-        hardware_interface::HW_IF_VELOCITY);
+        rclcpp::get_logger("DiffDriveKuzyaHardware"),
+        "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
+        joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
   }
@@ -102,126 +113,128 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-std::vector<hardware_interface::StateInterface> DiffBotSystemHardware::export_state_interfaces()
+std::vector<hardware_interface::StateInterface> DiffDriveKuzyaHardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
-  for (auto i = 0u; i < info_.joints.size(); i++)
-  {
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_positions_[i]));
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
-  }
+
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+    wheel_l_.name, hardware_interface::HW_IF_POSITION, &wheel_l_.pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+    wheel_l_.name, hardware_interface::HW_IF_VELOCITY, &wheel_l_.vel));
+
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+    wheel_r_.name, hardware_interface::HW_IF_POSITION, &wheel_r_.pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+    wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.vel));
 
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> DiffBotSystemHardware::export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> DiffDriveKuzyaHardware::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
-  for (auto i = 0u; i < info_.joints.size(); i++)
-  {
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
-  }
+
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+    wheel_l_.name, hardware_interface::HW_IF_VELOCITY, &wheel_l_.cmd));
+
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+    wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.cmd));
 
   return command_interfaces;
 }
 
-hardware_interface::CallbackReturn DiffBotSystemHardware::on_activate(
+hardware_interface::CallbackReturn DiffDriveKuzyaHardware::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(get_logger(), "Activating ...please wait...");
-
-  for (auto i = 0; i < hw_start_sec_; i++)
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Configuring ...please wait...");
+  if (comms_.connected())
   {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(get_logger(), "%.1f seconds left...", hw_start_sec_ - i);
+    comms_.disconnect();
   }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
-  // set some default values
-  for (auto i = 0u; i < hw_positions_.size(); i++)
-  {
-    if (std::isnan(hw_positions_[i]))
-    {
-      hw_positions_[i] = 0;
-      hw_velocities_[i] = 0;
-      hw_commands_[i] = 0;
-    }
-  }
-
-  RCLCPP_INFO(get_logger(), "Successfully activated!");
+  comms_.connect(cfg_.device, cfg_.baud_rate, cfg_.timeout_ms);
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Successfully configured!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn DiffBotSystemHardware::on_deactivate(
+hardware_interface::CallbackReturn DiffDriveKuzyaHardware::on_cleanup(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(get_logger(), "Deactivating ...please wait...");
-
-  for (auto i = 0; i < hw_stop_sec_; i++)
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Cleaning up ...please wait...");
+  if (comms_.connected())
   {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(get_logger(), "%.1f seconds left...", hw_stop_sec_ - i);
+    comms_.disconnect();
   }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
-  RCLCPP_INFO(get_logger(), "Successfully deactivated!");
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Successfully cleaned up!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type DiffBotSystemHardware::read(
+
+hardware_interface::CallbackReturn DiffDriveKuzyaHardware::on_activate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Activating ...please wait...");
+  if (!comms_.connected())
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+  if (cfg_.pid_p > 0)
+  {
+    comms_.set_pid_values(cfg_.pid_p,cfg_.pid_d,cfg_.pid_i,cfg_.pid_o);
+  }
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Successfully activated!");
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn DiffDriveKuzyaHardware::on_deactivate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Deactivating ...please wait...");
+  RCLCPP_INFO(rclcpp::get_logger("DiffDriveKuzyaHardware"), "Successfully deactivated!");
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::return_type DiffDriveKuzyaHardware::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  std::stringstream ss;
-  ss << "Reading states:";
-  for (std::size_t i = 0; i < hw_velocities_.size(); i++)
+  if (!comms_.connected())
   {
-    // Simulate DiffBot wheels's movement as a first-order system
-    // Update the joint status: this is a revolute joint without any limit.
-    // Simply integrates
-    hw_positions_[i] = hw_positions_[i] + period.seconds() * hw_velocities_[i];
-
-    ss << std::fixed << std::setprecision(2) << std::endl
-       << "\t"
-          "position "
-       << hw_positions_[i] << " and velocity " << hw_velocities_[i] << " for '"
-       << info_.joints[i].name.c_str() << "'!";
+    return hardware_interface::return_type::ERROR;
   }
-  RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
+
+  comms_.read_encoder_values(wheel_l_.enc, wheel_r_.enc);
+
+  double delta_seconds = period.seconds();
+
+  double pos_prev = wheel_l_.pos;
+  wheel_l_.pos = wheel_l_.calc_enc_angle();
+  wheel_l_.vel = (wheel_l_.pos - pos_prev) / delta_seconds;
+
+  pos_prev = wheel_r_.pos;
+  wheel_r_.pos = wheel_r_.calc_enc_angle();
+  wheel_r_.vel = (wheel_r_.pos - pos_prev) / delta_seconds;
 
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type kuzya_bot ::DiffBotSystemHardware::write(
+hardware_interface::return_type kuzya_bot::DiffDriveKuzyaHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  std::stringstream ss;
-  ss << "Writing commands:";
-  for (auto i = 0u; i < hw_commands_.size(); i++)
+  if (!comms_.connected())
   {
-    // Simulate sending commands to the hardware
-    hw_velocities_[i] = hw_commands_[i];
-
-    ss << std::fixed << std::setprecision(2) << std::endl
-       << "\t" << "command " << hw_commands_[i] << " for '" << info_.joints[i].name.c_str() << "'!";
+    return hardware_interface::return_type::ERROR;
   }
-  RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
 
+  int motor_l_counts_per_loop = wheel_l_.cmd / wheel_l_.rads_per_count / cfg_.loop_rate;
+  int motor_r_counts_per_loop = wheel_r_.cmd / wheel_r_.rads_per_count / cfg_.loop_rate;
+  comms_.set_motor_values(motor_l_counts_per_loop, motor_r_counts_per_loop);
   return hardware_interface::return_type::OK;
 }
-
 }  // namespace kuzya_bot
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  kuzya_bot::DiffBotSystemHardware, hardware_interface::SystemInterface)
+  kuzya_bot::DiffDriveKuzyaHardware, hardware_interface::SystemInterface)

@@ -26,8 +26,8 @@ def generate_launch_description():
     declared_arguments = []
     declared_arguments.append(
         DeclareLaunchArgument(
-            "description_package",
-            default_value="kuzya_bot_description",
+            "main_package",
+            default_value="kuzya_bot",
             description="Description package with robot URDF/xacro files. Usually the argument \
         is not set, it enables use of a custom description.",
         )
@@ -41,12 +41,12 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "gui",
-            default_value="true",
-            description="Start Rviz2 and Joint State Publisher gui automatically \
+           "gui",
+           default_value="true",
+           description="Start Rviz2 and Joint State Publisher gui automatically \
         with this launch file.",
-        )
-    )
+           )
+      )
     declared_arguments.append(
         DeclareLaunchArgument(
             "prefix",
@@ -58,7 +58,7 @@ def generate_launch_description():
     )
 
     # Initialize Arguments
-    description_package = LaunchConfiguration("description_package")
+    description_package = LaunchConfiguration("main_package")
     description_file = LaunchConfiguration("description_file")
     gui = LaunchConfiguration("gui")
     prefix = LaunchConfiguration("prefix")
@@ -69,7 +69,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("kuzya_bot"), "urdf", description_file]
+                [FindPackageShare(description_package), "urdf", description_file]
             ),
             " ",
             "prefix:=",
@@ -79,7 +79,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "diffbot/rviz", "diffbot_view.rviz"]
+        [FindPackageShare(description_package), "rviz", "diffbot_view.rviz"]
     )
 
     joint_state_publisher_node = Node(
