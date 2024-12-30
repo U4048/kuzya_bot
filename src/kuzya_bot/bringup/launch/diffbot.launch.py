@@ -6,17 +6,12 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
 
-
-from launch import LaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
-
-from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+
     # Declare arguments
     declared_arguments = []
     declared_arguments.append(
@@ -53,18 +48,19 @@ def generate_launch_description():
         )
     )
 
+    # Initialize Arguments
     description_package = LaunchConfiguration("main_package")
     description_file = LaunchConfiguration("description_file")
     gui = LaunchConfiguration("gui")
     prefix = LaunchConfiguration("prefix")
-
+    
     # Get URDF via xacro    
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("kuzya_bot"), "urdf", "diffbot.urdf.xacro"]
+                [FindPackageShare(description_package), "urdf", "diffbot.urdf.xacro"]
             ),
         ]
     )
@@ -87,6 +83,7 @@ def generate_launch_description():
         parameters=[robot_description, robot_controllers],
         output="both",
     )
+
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -95,7 +92,7 @@ def generate_launch_description():
         remappings=[
             ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),            
         ],
-        #condition=IfCondition(gui),
+        condition=IfCondition(gui),
     )
     
     rviz_node = Node(
@@ -104,7 +101,7 @@ def generate_launch_description():
         name="rviz2",
         output="log",
         arguments=["-d", rviz_config_file],
-        #condition=IfCondition(gui),
+        condition=IfCondition(gui),
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -143,4 +140,4 @@ def generate_launch_description():
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
 
-    return LaunchDescription(nodes)
+    return LaunchDescription(declared_arguments + nodes)
