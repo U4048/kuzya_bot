@@ -91,6 +91,9 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="both",
+        remappings=[
+            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),            
+        ],
         parameters=[robot_description],
     )
     rviz_node = Node(
