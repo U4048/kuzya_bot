@@ -9,6 +9,11 @@ from launch.conditions import IfCondition
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
+
+
 
 def generate_launch_description():
 
@@ -132,22 +137,26 @@ def generate_launch_description():
         )
     )
 
-    ld19_lidar_node = Node(
-        package="ld19_lidar",
-        executable="ld19_lidar",
-        name="ld19_lidar",
-        output="log",
-        condition=IfCondition(gui),
+
+    #Include LDLidar launch file
+    ldlidar_launch = IncludeLaunchDescription(
+      launch_description_source=PythonLaunchDescriptionSource([
+          get_package_share_directory('ldlidar_stl_ros2'),
+          '/launch/ld19.launch.py'
+      ])
     )
 
     nodes = [
-        ld19_lidar_node,
         control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
         delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-        
     ]
 
-    return LaunchDescription(declared_arguments + nodes)
+    
+    ld = LaunchDescription(declared_arguments)
+    ld.add_action(ldlidar_launch)
+    ld.add_action(nodes)
+    
+    return ld

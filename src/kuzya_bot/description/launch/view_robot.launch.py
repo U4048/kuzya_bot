@@ -19,6 +19,9 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
@@ -104,6 +107,13 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
         condition=IfCondition(gui),
     )
+    #Include LDLidar launch file
+    ldlidar_launch = IncludeLaunchDescription(
+      launch_description_source=PythonLaunchDescriptionSource([
+          get_package_share_directory('ldlidar_stl_ros2'),
+          '/launch/ld19.launch.py'
+      ])
+    )
 
     nodes = [
         joint_state_publisher_node,
@@ -111,4 +121,9 @@ def generate_launch_description():
         rviz_node,
     ]
 
-    return LaunchDescription(declared_arguments + nodes)
+    
+    ld = LaunchDescription(declared_arguments)
+    ld.add_action(ldlidar_launch)
+    ld.add_action(nodes)
+    
+    return ld
