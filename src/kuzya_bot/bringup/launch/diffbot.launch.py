@@ -58,8 +58,8 @@ def generate_launch_description():
     description_file = LaunchConfiguration("description_file")
     gui = LaunchConfiguration("gui")
     prefix = LaunchConfiguration("prefix")
-    
-    # Get URDF via xacro    
+
+    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -95,11 +95,11 @@ def generate_launch_description():
         output="both",
         parameters=[robot_description],
         remappings=[
-            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),            
+            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
         ],
         condition=IfCondition(gui),
     )
-    
+
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -146,17 +146,12 @@ def generate_launch_description():
       ])
     )
 
-    nodes = [
-        control_node,
-        robot_state_pub_node,
-        joint_state_broadcaster_spawner,
-        delay_rviz_after_joint_state_broadcaster_spawner,
-        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-    ]
-
-    
     ld = LaunchDescription(declared_arguments)
+    ld.add_action(delay_rviz_after_joint_state_broadcaster_spawner)
+    ld.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
     ld.add_action(ldlidar_launch)
-    ld.add_action(nodes)
-    
+    ld.add_action(control_node)
+    ld.add_action(robot_state_pub_node)
+    ld.add_action(joint_state_broadcaster_spawner)
+
     return ld
