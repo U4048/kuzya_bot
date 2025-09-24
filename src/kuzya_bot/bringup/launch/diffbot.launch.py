@@ -78,6 +78,14 @@ def generate_launch_description():
             "diffbot_controllers.yaml",
         ]
     )
+    slam_toolbox = PathJoinSubstitution(
+        [
+            FindPackageShare("kuzya_bot"),
+            "config",
+            "slam_toolbox.yaml",
+        ]
+    )
+
     rviz_config_file = PathJoinSubstitution(
         [FindPackageShare("kuzya_bot"), "rviz", "diffbot.rviz"]
     )
@@ -151,7 +159,7 @@ def generate_launch_description():
         executable="async_slammactionserver",
         name="slam_toolbox",
         output="screen",
-        parameters=['slam_toolbox.yaml'],
+        parameters=[slam_toolbox],
         arguments=["--ros-args", "--log-level", "info"],
     )
 
