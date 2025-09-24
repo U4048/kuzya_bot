@@ -156,7 +156,7 @@ def generate_launch_description():
 
     slam_node = Node(
         package="slam_toolbox",
-        executable="async_slammactionserver",
+        executable="async_slam_toolbox_node",
         name="slam_toolbox",
         output="screen",
         parameters=[slam_toolbox],
