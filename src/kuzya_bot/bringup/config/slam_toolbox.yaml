@@ -1,0 +1,24 @@
+mapper:
+  occupancy_grid_topic: /map
+  voxel_filter_scan_topic: scan_filtered
+  laser_max_range: 30.0
+  laser_min_range: 0.1
+  minimum_travel_distance: 0.2
+  minimum_travel_heading: 0.1
+  optimization_method_type: ASYNCHRONOUS
+  optimize_every_n_scans: 100
+  pose_graph_save_directory: /tmp/posegraph.slamtoolbox
+  loop_closure_rate: 1.0
+  insert_free_space: true
+  map_update_interval: 5.0
+  save_poses_periodically: true
+  num_laser_scans: 1
+  num_point_clouds: 0
+  odometry_frame_id: odom
+  base_frame_id: base_link
+  tracking_mode: ONLINE_ASYNC
+
+online_async:
+  real_time_factor: 1.0
+  synchronization: true
+  delay_milliseconds: 100

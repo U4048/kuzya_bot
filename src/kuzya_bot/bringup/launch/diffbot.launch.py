@@ -146,6 +146,15 @@ def generate_launch_description():
       ])
     )
 
+    slam_node = Node(
+        package="slam_toolbox",
+        executable="async_slammactionserver",
+        name="slam_toolbox",
+        output="screen",
+        parameters=[/config/slam_toolbox.yaml],
+        arguments=["--ros-args", "--log-level", "info"],
+    )
+
     ld = LaunchDescription(declared_arguments)
     ld.add_action(delay_rviz_after_joint_state_broadcaster_spawner)
     ld.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
@@ -153,5 +162,6 @@ def generate_launch_description():
     ld.add_action(control_node)
     ld.add_action(robot_state_pub_node)
     ld.add_action(joint_state_broadcaster_spawner)
+    ld.add_action(slam_node)
 
     return ld
