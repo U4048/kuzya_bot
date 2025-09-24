@@ -151,7 +151,7 @@ def generate_launch_description():
         executable="async_slammactionserver",
         name="slam_toolbox",
         output="screen",
-        parameters=['/config/slam_toolbox.yaml'],
+        parameters=['slam_toolbox.yaml'],
         arguments=["--ros-args", "--log-level", "info"],
     )
 
