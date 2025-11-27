@@ -150,7 +150,7 @@
         </inertial>
       </link>
 <!-- LIDAR Link -->
-  <link name="${prefix}base_scan">
+  <link name="${prefix}base_laser">
     <visual>
       <geometry>
         <cylinder radius="0.035" length="0.030"/>
@@ -172,7 +172,7 @@
 
   <joint name="${prefix}lidar_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="base_scan"/>
+    <child link="base_laser"/>
     <origin xyz="0 0 0.15" rpy="0 0 0"/>
   </joint>
 
